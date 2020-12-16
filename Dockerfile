@@ -4,6 +4,8 @@ RUN git clone https://github.com/gamoutatsumi/ojichat_rs_discordbot.git .
 
 RUN cargo build --release
 
+RUN strip /home/rust/src/target/x86_64-unknown-linux-musl/release/ojichat-rs-disbot
+
 FROM scratch
 
 COPY --from=builder \
