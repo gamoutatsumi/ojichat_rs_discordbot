@@ -68,13 +68,6 @@ async fn unknown_command(_ctx: &Context, _msg: &Message, unknown_command_name: &
 }
 
 #[hook]
-async fn normal_message(ctx: &Context, msg: &Message) {
-    let res = ojichat::get_message(None, None, None);
-    let _ = msg
-        .channel_id.say(&ctx.http, res).await;
-}
-
-#[hook]
 async fn dispatch_error(ctx: &Context, msg: &Message, error: DispatchError) {
     if let DispatchError::Ratelimited(duration) = error {
         let _ = msg
@@ -128,7 +121,6 @@ async fn main() {
             .owners(owners))
         .unrecognised_command(unknown_command)
         .on_dispatch_error(dispatch_error)
-        .normal_message(normal_message)
         .help(&MY_HELP)
         .group(&OJICHAT_GROUP);
 
