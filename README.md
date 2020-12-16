@@ -37,9 +37,13 @@ Docker Hubに上がってます。
 
 今回は `--env-file` を使います。
 
+どうやら `--init` を使わないと `SIGINT` が上手くハンドリングされないみたいです。(いわゆるPID=1問題)
+
+Rust側でシグナルを処理するように書けば良さそうなので余裕がある時に直したい。
+
 ```bash
 docker pull gamoutatsumi/discord-ojibot:latest
-docker run --rm --env-file=./.env gamoutatsumi/discord-ojibot:latest
+docker run --init --rm --env-file=./.env gamoutatsumi/discord-ojibot:latest
 <bot-name> is connected!
 ```
 
