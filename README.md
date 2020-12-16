@@ -42,8 +42,8 @@ Docker Hubに上がってます。
 Rust側でシグナルを処理するように書けば良さそうなので余裕がある時に直したい。
 
 ```bash
-docker pull gamoutatsumi/discord-ojibot:latest
-docker run --init --rm --env-file=./.env gamoutatsumi/discord-ojibot:latest
+docker pull gamout/ojichat-rs-disbot:latest
+docker run --init --rm --env-file=./.env gamout/ojichat-rs-disbot:latest
 <bot-name> is connected!
 ```
 
