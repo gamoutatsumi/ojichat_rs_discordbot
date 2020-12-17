@@ -1,26 +1,22 @@
+use dotenv::dotenv;
+use ojichat::ojichat;
 use serenity::{
     async_trait,
     client::bridge::gateway::ShardManager,
     framework::standard::{
-        Args, CommandResult, CommandGroup,
-        DispatchError, HelpOptions, help_commands, StandardFramework,
+        help_commands,
         macros::{command, group, help, hook},
+        Args, CommandGroup, CommandResult, DispatchError, HelpOptions, StandardFramework,
     },
     http::Http,
-    model::{
-        channel::Message,
-        gateway::Ready,
-        id::UserId,
-    },
+    model::{channel::Message, gateway::Ready, id::UserId},
     prelude::*,
 };
 use std::{
-    env,
     collections::{HashMap, HashSet},
+    env,
     sync::Arc,
 };
-use dotenv::dotenv;
-use ojichat::ojichat;
 
 struct SharedManagerContainer;
 
@@ -56,7 +52,7 @@ async fn my_help(
     args: Args,
     help_options: &'static HelpOptions,
     groups: &[&'static CommandGroup],
-    owners: HashSet<UserId>
+    owners: HashSet<UserId>,
 ) -> CommandResult {
     let _ = help_commands::with_embeds(context, msg, args, help_options, groups, owners).await;
     Ok(())
@@ -72,28 +68,40 @@ async fn dispatch_error(ctx: &Context, msg: &Message, error: DispatchError) {
     if let DispatchError::Ratelimited(duration) = error {
         let _ = msg
             .channel_id
-            .say(&ctx.http, &format!("Type this again in {} seconds.", duration.as_secs()))
+            .say(
+                &ctx.http,
+                &format!("Type this again in {} seconds.", duration.as_secs()),
+            )
             .await;
     }
 }
 
 use serenity::{futures::future::BoxFuture, FutureExt};
-fn _dispatch_error_no_macro<'fut>(ctx: &'fut mut Context, msg: &'fut Message, error: DispatchError) -> BoxFuture<'fut, ()> {
+fn _dispatch_error_no_macro<'fut>(
+    ctx: &'fut mut Context,
+    msg: &'fut Message,
+    error: DispatchError,
+) -> BoxFuture<'fut, ()> {
     async move {
         if let DispatchError::Ratelimited(duration) = error {
             let _ = msg
                 .channel_id
-                .say(&ctx.http, &format!("Type this again in {} seconds.", duration.as_secs()))
+                .say(
+                    &ctx.http,
+                    &format!("Type this again in {} seconds.", duration.as_secs()),
+                )
                 .await;
         };
-    }.boxed()
+    }
+    .boxed()
 }
 
 #[tokio::main]
 async fn main() {
     dotenv().ok();
 
-    let token = env::var("DISCORD_TOKEN").expect("Expected a token in the environment or .env file",);
+    let token =
+        env::var("DISCORD_TOKEN").expect("Expected a token in the environment or .env file");
 
     let http = Http::new_with_token(&token);
 
@@ -109,16 +117,17 @@ async fn main() {
                 Ok(bot_id) => (owners, bot_id.id),
                 Err(why) => panic!("Could not access the bot id: {:?}", why),
             }
-        },
+        }
         Err(why) => panic!("Could not access application info: {:?}", why),
     };
 
     let framework = StandardFramework::new()
-        .configure(|c| c
-            .with_whitespace(true)
-            .on_mention(Some(bot_id))
-            .prefix("~")
-            .owners(owners))
+        .configure(|c| {
+            c.with_whitespace(true)
+                .on_mention(Some(bot_id))
+                .prefix("~")
+                .owners(owners)
+        })
         .unrecognised_command(unknown_command)
         .on_dispatch_error(dispatch_error)
         .help(&MY_HELP)
